@@ -8,7 +8,7 @@ var path = require('path');
 
 var Server = function() {
   app.use(cors({
-    origin: 'http://localhost',
+    origin: 'http://localhost:3030',
     credentials: true
   }));
   app.use(bodyParser.json({limit: '1mb'}));
