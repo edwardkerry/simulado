@@ -91,6 +91,17 @@ describe('src/server', () => {
           .expect(404, done);
       });
 
+      describe('CORS', () => {
+        it('should set response header "Access-Control-Allow-Origin" to localhost', (done) => {
+          request(server)
+          .get('http://localhost:7001')
+          .expect((res) => {
+            expect(res.header['access-control-allow-origin']).to.equal('http://localhost');
+            expect(200, done);
+          })
+      });
+    });
+
       it('returns response mock status and body when matching mock is found', (done) => {
         const mockedResponse = {
           path: '/testPath',

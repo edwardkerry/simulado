@@ -1,11 +1,19 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import ResponseStore from './stores/ResponseStore';
 import RequestStore from './stores/RequestStore';
 
 const app = express();
 const responseStore = new ResponseStore();
 const requestStore = new RequestStore();
+
+app.use(cors({
+  origin: 'http://localhost:3030',
+  credentials: true,
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}));
+
 
 app.use(bodyParser.json());
 app.use(express.static('public'))
@@ -36,6 +44,7 @@ app.delete('/simulado/requests/clear', (req, res) => {
 });
 
 app.all('*', (req, res) => {
+  res.set('Access-Control-Allow-Origin', req.get('origin'));
   const matchedResponse = responseStore.match(req.method, req.path, req.headers, req.body);
 
   if (matchedResponse) {
