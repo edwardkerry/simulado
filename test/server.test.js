@@ -57,8 +57,17 @@ describe('Simulado end to end', function() {
           });
       });
     });
-
   });
+
+  describe('CORS', function () {
+    it('should set response header "Access-Control-Allow-Origin" to localhost', function (done) {
+      superagent.get('http://localhost:7001')
+      .end(function(_, res) {
+        expect(res.header['access-control-allow-origin']).to.equal('http://localhost:3030');
+        done()
+      });
+    });
+ });
 
   describe('defaults', function() {
     var sandbox, responseStoreAddStub;
@@ -87,4 +96,3 @@ describe('Simulado end to end', function() {
     });
   });
 });
-

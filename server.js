@@ -7,7 +7,10 @@ var requestStore = require('./lib/requestStore');
 var path = require('path');
 
 var Server = function() {
-  app.use(cors());
+  app.use(cors({
+    origin: 'http://localhost:3030',
+    credentials: true
+  }));
   app.use(bodyParser.json({limit: '1mb'}));
   app.use(bodyParser.urlencoded({
       extended: true
@@ -69,32 +72,33 @@ var Server = function() {
       res.sendStatus(200);
     });
   });
-  
+
   app.post('/reset', function(req, res) {
     responseStore.reset(req.body, function() {
       res.sendStatus(200);
     });
-  });  
+  });
 
   app.all('*', function(req, res) {
-      responseStore.find(req, function(mock) {
-          if (mock) {
-              if (mock.once) { responseStore.remove(mock) }
-              requestStore.add(req, mock.path);
-              for(var header in mock.headers) {
-                  res.header(header, mock.headers[header]);
-              }
-              if (mock.timeout > 0) {
-                setTimeout(function() {
-                  res.status(mock.status).send(mock.response);
-                }, mock.timeout * 1000);
-              } else {
-                  res.status(mock.status).send(mock.response);
-              }
-          } else {
-              res.status(404).send({});
-          }
-      });
+    res.set('Access-Control-Allow-Origin', req.get('origin'))
+    responseStore.find(req, function(mock) {
+      if (mock) {
+        if (mock.once) { responseStore.remove(mock) }
+        requestStore.add(req, mock.path);
+        for(var header in mock.headers) {
+          res.header(header, mock.headers[header]);
+        }
+        if (mock.timeout > 0) {
+          setTimeout(function() {
+            res.status(mock.status).send(mock.response);
+          }, mock.timeout * 1000);
+        } else {
+          res.status(mock.status).send(mock.response);
+        }
+      } else {
+        res.status(404).send({});
+      }
+    });
   });
 
   this.start = function(port) {
